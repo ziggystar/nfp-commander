@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="scala" name="Scala">
+      <configuration>
+        <option name="compilerLibraryLevel" value="Global" />
+        <option name="compilerLibraryName" value="scala-compiler-current" />
+        <option name="fsc" value="true" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/test/scala" isTestSource="true" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="miglayout" level="project" />
+    <orderEntry type="library" name="jFreeChart" level="project" />
+    <orderEntry type="library" name="jodaTime" level="project" />
+    <orderEntry type="library" name="scala-lib-current" level="application" />
+    <orderEntry type="library" name="specs" level="application" />
+    <orderEntry type="library" name="db-h2" level="project" />
+    <orderEntry type="library" name="squeryl" level="project" />
+  </component>
+</module>
+
