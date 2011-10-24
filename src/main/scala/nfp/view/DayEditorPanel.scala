@@ -6,6 +6,7 @@ import nfp.model.Day
 import com.toedter.calendar.JDateChooser
 import org.joda.time.DateMidnight
 import java.util.Date
+import javax.swing.BorderFactory
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,6 +18,8 @@ import java.util.Date
 
 class DayEditorPanel extends MigPanel {
   import nfp.DateConversion._
+
+  this.peer.setBorder(BorderFactory.createTitledBorder("Eintragen/Ändern"))
 
   val dateChooser: JDateChooser = new JDateChooser(new Date)
   this.add(new Label("Tag"))
