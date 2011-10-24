@@ -28,7 +28,10 @@ class DayEditorPanel extends MigPanel {
 
   val tfTemp: TextFieldFloatOption = new TextFieldFloatOption
   this.add(new Label("Temperatur"))
-  this.add(tfTemp, "w 150, wrap")
+  val cbKlammer: CheckBox = new CheckBox
+  cbKlammer.selected = true
+  this.add(tfTemp, "split 2, grow")
+  this.add(cbKlammer, "wrap")
 
   val cbSchleim: ComboBox[String] = new ComboBox[String](Seq("-","kein", "t", "f", "S", "(S)", "S+", "(S+)"))
   this.add(new Label("Schleim"))
@@ -47,7 +50,7 @@ class DayEditorPanel extends MigPanel {
   this.add(cbMumuSoft,"w 150, wrap")
 
   val buttonSave: Button = new Button("Speichern")
-  this.add(buttonSave)
+  this.add(buttonSave, "span 2, gap push")
 
   listenTo(buttonSave)
   reactions += {
@@ -65,8 +68,9 @@ class DayEditorPanel extends MigPanel {
     schleim = extractOComboBox(cbSchleim);
     mumuPos = extractOComboBox(cbMumuPos);
     mumuOpen = extractOComboBox(cbMumuOpen);
-    mumuS = extractOComboBox(cbMumuSoft)
-  ) yield new Day(date, temperature, None, schleim, mumuPos, mumuOpen, mumuS, Array.empty[Byte], false, None, None)
+    mumuS = extractOComboBox(cbMumuSoft);
+    klammern = !cbKlammer.selected
+  ) yield new Day(date, temperature, None, schleim, mumuPos, mumuOpen, mumuS, Array.empty[Byte], klammern, None, None)
 
   def setContent(day: Day) {
     dateChooser.setDate(day.id)
@@ -75,6 +79,7 @@ class DayEditorPanel extends MigPanel {
     cbMumuPos.selection.item = day.mumuPosition.getOrElse("-")
     cbMumuOpen.selection.item = day.mumuOpen.getOrElse("-")
     cbMumuSoft.selection.item = day.mumuFest.getOrElse("-")
+    cbKlammer.selected = !day.ausklammern
   }
 }
 

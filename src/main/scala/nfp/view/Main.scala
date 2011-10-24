@@ -102,8 +102,8 @@ object Main extends App with Reactor {
   val panel = new MigPanel
 
   panel.add(dayEditor, "growy")
-  panel.add(new ScrollPane(dayTable), "grow, wrap")
-  panel.add(Component.wrap(chartPanel), "span")
+  panel.add(Component.wrap(chartPanel), "wrap")
+  panel.add(new ScrollPane(dayTable), "span, grow")
 
   frame.contents = panel
   frame.open()

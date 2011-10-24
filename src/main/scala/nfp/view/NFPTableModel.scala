@@ -18,7 +18,7 @@ class NFPTableModel extends AbstractTableModel with Reactor {
 
   import DataBase._
 
-  val names = List("Datum", "Temperatur", "Schleim", "MumuPos", "MumuOffen", "MumuHärte")
+  val names = List("Datum", "Temperatur", "Schleim", "Mumu Pos", "Mumu Öffnung", "Mumu Härte")
 
   private def createTransaction: IndexedSeq[Day] = {
     transaction {
