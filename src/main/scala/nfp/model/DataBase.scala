@@ -3,10 +3,18 @@ package nfp.model
 import org.squeryl.Schema
 import org.squeryl.{Session, SessionFactory}
 import org.squeryl.PrimitiveTypeMode._
+import java.sql.Date
 
 object DataBase extends Schema {
   val days = table[Day]
   val properties = table[KeyValue]
+
+  def getTemperatureSeries: Array[(Date, Option[Float])] = transaction {
+    from(days)(d =>
+      select (d.id -> d.temperature)
+      orderBy(d.id asc)
+    ).toArray
+  }
 
   def putProperty(key: String, value: String) = transaction{properties.insertOrUpdate(new KeyValue(key, value))}
   def getProperty(key: String): Option[String] = transaction{

@@ -46,13 +46,10 @@ class DayEditorPanel extends MigPanel {
   this.add(new Label("Muttermund Härte"))
   this.add(cbMumuSoft,"w 150, wrap")
 
-  val buttonUndo: Button = new Button("Undo")
   val buttonSave: Button = new Button("Speichern")
-  this.add(buttonUndo)
   this.add(buttonSave)
 
   listenTo(buttonSave)
-  listenTo(buttonUndo)
   reactions += {
     case swing.event.ActionEvent(c) if (c == buttonSave) => getDay.foreach(day => publish(DayModifiedEvent(day)))
   }

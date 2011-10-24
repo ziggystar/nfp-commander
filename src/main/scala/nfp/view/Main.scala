@@ -10,6 +10,13 @@ import util.Random
 import nfp.DateConversion._
 import collection.mutable.Set
 import nfp.model.{Day, DataBase}
+import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
+import org.jfree.chart.plot.XYPlot
+import org.jfree.data.time.{TimeSeriesCollection, TimeSeries}
+import org.jfree.chart.axis.{DateAxis, NumberAxis}
+import org.jfree.data.time.{Day => JFDay}
+import org.jfree.chart.renderer.xy.{XYSplineRenderer, XYLineAndShapeRenderer}
+import java.awt.geom.Ellipse2D
 
 /**
  * Created by IntelliJ IDEA.
@@ -64,10 +71,39 @@ object Main extends App with Reactor {
   dayTable.model = dayTableModel
   dayTableModel.listenTo(dayEditor)
 
+  val timeSeries = new TimeSeries("Temperatur", "T [°C]", "Datum")
+  DataBase.getTemperatureSeries.foreach{case (date, tOpt) =>
+    tOpt.foreach{ temperature =>
+      timeSeries.add(new JFDay(date), temperature)
+    }
+  }
+  val numberAxis: NumberAxis = new NumberAxis("Temperatur/°C")
+  numberAxis.setRange(35d,38d)
+  val renderer = new DiscontinuedLineRenderer
+  renderer.setSeriesShape(0,new Ellipse2D.Double(-3,-3,6,6))
+  renderer.renderLinePredicate = timeData => timeData > 0 && (
+    timeSeries.getDataItem(timeData - 1).getPeriod.asInstanceOf[JFDay].next == timeSeries.getDataItem(timeData).getPeriod
+      )
+  renderer.setDrawSeriesLineAsPath(false)
+  val plot = new XYPlot(
+    new TimeSeriesCollection(timeSeries),
+    new DateAxis("Tag"),
+    numberAxis,
+    renderer
+  )
+  val chart: JFreeChart = new JFreeChart(plot)
+  chart.removeLegend()
+  val chartPanel = new ChartPanel(chart)
+  chartPanel.setDomainZoomable(false)
+  chartPanel.setFillZoomRectangle(false)
+  chartPanel.setPopupMenu(null)
+
+
   val panel = new MigPanel
 
-  panel.add(new ScrollPane(dayTable))
-  panel.add(dayEditor, "grow, wrap")
+  panel.add(dayEditor, "growy")
+  panel.add(new ScrollPane(dayTable), "grow, wrap")
+  panel.add(Component.wrap(chartPanel), "span")
 
   frame.contents = panel
   frame.open()
