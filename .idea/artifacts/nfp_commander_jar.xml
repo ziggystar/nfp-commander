@@ -1,0 +1,19 @@
+<component name="ArtifactManager">
+  <artifact name="nfp-commander:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/nfp_commander_jar</output-path>
+    <root id="root">
+      <element id="archive" name="nfp_commander.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/src/main/scala/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="nfp-commander" />
+      </element>
+      <element id="library" level="project" name="squeryl" />
+      <element id="library" level="project" name="miglayout" />
+      <element id="library" level="project" name="jodaTime" />
+      <element id="library" level="application" name="scala-lib-current" />
+      <element id="library" level="project" name="jFreeChart" />
+      <element id="library" level="project" name="db-h2" />
+    </root>
+  </artifact>
+</component>
