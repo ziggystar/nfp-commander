@@ -3,17 +3,17 @@ package nfp.model
 import java.sql.Date
 import org.squeryl.KeyedEntity
 
-class Day(val id: Date,
-          val temperature: Option[Float],
-          val measureTime: Option[String],
-          val schleim: Option[String],
-          val mumuPosition: Option[String],
-          val mumuOpen: Option[String],
-          val mumuFest: Option[String],
-          val comment: Array[Byte],
-          val ausklammern: Boolean,
-          val blutung: Option[String], //"schmier", "schwach", "mittel, "stark"
-          val sex: Option[String]
+case class Day(id: Date,
+          temperature: Option[Float],
+          measureTime: Option[String],
+          schleim: Option[String],
+          mumuPosition: Option[String],
+          mumuOpen: Option[String],
+          mumuFest: Option[String],
+          comment: Array[Byte],
+          ausklammern: Boolean,
+          blutung: Option[String], //"schmier", "schwach", "mittel, "stark"
+          sex: Option[String]
            ) extends KeyedEntity[Date] {
   def this() = this(
     new java.sql.Date(0),
@@ -27,8 +27,6 @@ class Day(val id: Date,
     false,
     Some(""),
     Some(""))
-
-  override def toString = "Day(%s,%s,%s,%s)".format(id,temperature,schleim, mumuPosition, mumuOpen, comment)
 }
 
 

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2011 Thomas Geier
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package nfp.view
 
 import swing._
@@ -12,11 +29,10 @@ import collection.mutable.Set
 import nfp.model.{Day, DataBase}
 import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
 import org.jfree.chart.plot.XYPlot
-import org.jfree.data.time.{TimeSeriesCollection, TimeSeries}
 import org.jfree.chart.axis.{DateAxis, NumberAxis}
-import org.jfree.data.time.{Day => JFDay}
 import org.jfree.chart.renderer.xy.{XYSplineRenderer, XYLineAndShapeRenderer}
 import java.awt.geom.Ellipse2D
+import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
 
 /**
  * Created by IntelliJ IDEA.
@@ -72,10 +88,14 @@ object Main extends App with Reactor {
   dayTableModel.listenTo(dayEditor)
 
   val timeSeries = new TimeSeries("Temperatur", "T [°C]", "Datum")
-  DataBase.getTemperatureSeries.foreach{case (date, tOpt) =>
-    tOpt.foreach{ temperature =>
-      timeSeries.add(new JFDay(date), temperature)
-    }
+  def chartUpdateItem(day: Day) {
+    val item: DaySeriesItem = new DaySeriesItem(day)
+    timeSeries.delete(item.getPeriod)
+    timeSeries.add(item,true)
+  }
+  class DaySeriesItem(val day: Day) extends TimeSeriesDataItem(new JFDay(day.id),day.temperature.getOrElse(0f))
+  transaction{
+    DataBase.days.iterator.filter(_.temperature.isDefined).map(new DaySeriesItem(_)).foreach{timeSeries.add}
   }
   val numberAxis: NumberAxis = new NumberAxis("Temperatur/°C")
   numberAxis.setRange(35d,38d)
@@ -84,6 +104,7 @@ object Main extends App with Reactor {
   renderer.renderLinePredicate = timeData => timeData > 0 && (
     timeSeries.getDataItem(timeData - 1).getPeriod.asInstanceOf[JFDay].next == timeSeries.getDataItem(timeData).getPeriod
       )
+  renderer.fillItemShape = seriesItem => !timeSeries.getDataItem(seriesItem).asInstanceOf[DaySeriesItem].day.ausklammern
   renderer.setDrawSeriesLineAsPath(false)
   val plot = new XYPlot(
     new TimeSeriesCollection(timeSeries),
@@ -98,17 +119,18 @@ object Main extends App with Reactor {
   chartPanel.setFillZoomRectangle(false)
   chartPanel.setPopupMenu(null)
 
-
+  this.listenTo(dayEditor)
+  this.reactions += {
+    case DayModifiedEvent(d) => chartUpdateItem(d)
+  }
   val panel = new MigPanel
 
-  panel.add(dayEditor, "growy")
-  panel.add(Component.wrap(chartPanel), "wrap")
-  panel.add(new ScrollPane(dayTable), "span, grow")
+  panel.add(dayEditor, "h 300, growy")
+  panel.add(Component.wrap(chartPanel), "h 300, grow, push, wrap, left")
+  panel.add(new ScrollPane(dayTable), "span, h 180, grow, push")
 
   frame.contents = panel
   frame.open()
-
-  frame.resizable = false
 }
 
 trait Editor extends Component {

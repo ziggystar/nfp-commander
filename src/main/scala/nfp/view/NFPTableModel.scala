@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2011 Thomas Geier
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package nfp.view
 
 import swing._
@@ -22,7 +39,7 @@ class NFPTableModel extends AbstractTableModel with Reactor {
 
   private def createTransaction: IndexedSeq[Day] = {
     transaction {
-      from(days)(d => where(d.id > ((new LocalDate).minusDays(131): java.sql.Date)) select (d) orderBy (d.id).desc).toIndexedSeq
+      from(days)(d => select (d) orderBy (d.id).desc).toIndexedSeq
     }
   }
 
@@ -43,11 +60,10 @@ class NFPTableModel extends AbstractTableModel with Reactor {
 
   def getValueAt(row: Int, col: Int): AnyRef = {
     val rowQuery: Day = query(row)
-    def prettifyOption[A](option: Option[A]): String = option.map(_.toString).getOrElse("-")
-    def prettifyOptionF(option: Option[Float]): String = option.map("%.2f".format(_)).getOrElse("-")
+    def prettifyOption[A](option: Option[A]): String = option.map(_.toString).getOrElse("")
     col match {
       case 0 => prettyfyDate(rowQuery.id)
-      case 1 => (if (rowQuery.ausklammern) "(%s)" else "%s") format prettifyOptionF(rowQuery.temperature map NFPCalculations.roundTemperature)
+      case 1 => rowQuery.temperature.map(t => (if (rowQuery.ausklammern) "(%.2f°C)" else "%.2f°C") format t).getOrElse("")
       case 2 => prettifyOption(rowQuery.schleim)
       case 3 => prettifyOption(rowQuery.mumuPosition)
       case 4 => prettifyOption(rowQuery.mumuOpen)
