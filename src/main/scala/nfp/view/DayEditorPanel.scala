@@ -34,7 +34,7 @@ import com.toedter.calendar.JDateChooser
 class DayEditorPanel extends MigPanel {
   import nfp.DateConversion._
 
-  case class StringOption(label: String, values: Seq[String], extractor: Day => Option[String], modifier: Option[String] => Day => Day)
+  case class StringOption(label: String, values: Seq[String], extractor: Day => Option[String], modifier: Option[String] => Day => Day, default: Option[String] = None)
   val stringOptions = Seq.empty[StringOption] :+
     StringOption(
       "Schleim",
@@ -62,13 +62,15 @@ class DayEditorPanel extends MigPanel {
       "Blutung",
       Seq("keine", "leicht", "mittel", "stark", "Schmier"),
       _.blutung,
-      v => _.copy(blutung = v)
+      v => _.copy(blutung = v),
+      Some("keine")
     ) :+
     StringOption(
       "Sex",
       Seq("keiner", "verhütet", "unverhütet"),
       _.sex,
-      v => _.copy(sex = v)
+      v => _.copy(sex = v),
+      Some("keiner")
     )
 
   this.peer.setBorder(BorderFactory.createTitledBorder("Eintragen/Ändern"))
@@ -86,6 +88,7 @@ class DayEditorPanel extends MigPanel {
 
   val soComboBoxes = stringOptions.map(so => so -> new ComboBox[String]("-" +: so.values))
   soComboBoxes.foreach{ case (so, cb) =>
+    so.default.foreach{cb.selection.item = _}
     this.add(new Label(so.label))
     this.add(cb, "w 150, wrap")
   }
