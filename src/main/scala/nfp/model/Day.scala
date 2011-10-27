@@ -20,6 +20,9 @@ package nfp.model
 import java.sql.Date
 import org.squeryl.KeyedEntity
 
+/**
+ * Representation class for data in day table.
+ */
 case class Day(id: Date,
           temperature: Option[Float],
           measureTime: Option[String],

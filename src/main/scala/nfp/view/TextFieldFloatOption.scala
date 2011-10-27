@@ -23,11 +23,10 @@ import javax.swing.text.NumberFormatter
 import java.util.Locale
 
 /**
- * A text field to enter a number. This should be replaced/removed.
- *
- * @author Thomas Geier
- * Date: 25.06.11
- */
+  * A text field to enter a number. This should be replaced/removed.
+  *
+  * @author Thomas Geier
+  */
 class TextFieldFloatOption extends FormattedTextField(NumberFormat.getNumberInstance(Locale.GERMANY)) with Editor {
 
   type TData = Option[Float]
@@ -39,18 +38,22 @@ class TextFieldFloatOption extends FormattedTextField(NumberFormat.getNumberInst
   numberFormat.setGroupingUsed(false)
 
   formatter.setFormat(numberFormat)
-//  formatter.setMaximum(44)
-//  formatter.setMinimum(30)
 
   def setValue(v: TextFieldFloatOption#TData) {
     text = v.map(v => "%.2f" format v).getOrElse("")
   }
 
   def getValue: TextFieldFloatOption#TData = try {
-    Some(text.replace(',','.').toFloat) filter (t => t > 32f && t < 44f)
+    Some(text.replace(',', '.').toFloat) filter (t => t > 32f && t < 44f)
   } catch {
     case _ => None
   }
+}
+
+trait Editor extends Component {
+  type TData
+  def setValue(v: TData): Unit
+  def getValue: TData
 }
 
 

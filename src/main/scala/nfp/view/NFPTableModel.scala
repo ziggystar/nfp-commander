@@ -24,13 +24,10 @@ import org.joda.time.LocalDate
 import nfp.model.{Day, DataBase}
 import nfp.DateConversion._
 
-/**
- * Created by IntelliJ IDEA.
- * User: thomas
- * Date: 25.06.11
- * Time: 21:48
- * To change this template use File | Settings | File Templates.
- */
+/** Table model for use with Swing GUI tables.
+  *
+  * @author Thomas Geier
+  */
 class NFPTableModel extends AbstractTableModel with Reactor {
 
   import DataBase._
@@ -39,7 +36,7 @@ class NFPTableModel extends AbstractTableModel with Reactor {
 
   private def createTransaction: IndexedSeq[Day] = {
     transaction {
-      from(days)(d => select (d) orderBy (d.id).desc).toIndexedSeq
+      from(days)(d => select(d) orderBy (d.id).desc).toIndexedSeq
     }
   }
 
@@ -47,13 +44,12 @@ class NFPTableModel extends AbstractTableModel with Reactor {
 
   override def getColumnName(p1: Int): String = names(p1)
 
-  def prettyfyDate(d: LocalDate): String = {
+  def prettifyDate(d: LocalDate): String = {
     import org.joda.time.{Days => jtDays}
     jtDays.daysBetween(new LocalDate, d).getDays match {
       case 0 => "heute"
       case 1 => "gestern"
       case x => d.toString
-      //case x => "%s %d Tagen".format(if(x > 0) "in" else "vor",math.abs(x))
     }
 
   }
@@ -62,7 +58,7 @@ class NFPTableModel extends AbstractTableModel with Reactor {
     val rowQuery: Day = query(row)
     def prettifyOption[A](option: Option[A]): String = option.map(_.toString).getOrElse("")
     col match {
-      case 0 => prettyfyDate(rowQuery.id)
+      case 0 => prettifyDate(rowQuery.id)
       case 1 => rowQuery.temperature.map(t => (if (rowQuery.ausklammern) "(%.2f°C)" else "%.2f°C") format t).getOrElse("")
       case 2 => prettifyOption(rowQuery.schleim)
       case 3 => prettifyOption(rowQuery.mumuPosition)
@@ -80,7 +76,6 @@ class NFPTableModel extends AbstractTableModel with Reactor {
   reactions += {
     case DayModifiedEvent(day) => {
       transaction {
-        //          days.insertOrUpdate(day)
         try {
           days.update(day)
         } catch {

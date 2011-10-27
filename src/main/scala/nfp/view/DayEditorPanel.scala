@@ -25,16 +25,18 @@ import javax.swing.BorderFactory
 import com.toedter.calendar.JDateChooser
 
 /**
- * GUI element to display and modify a Day object.
- * @see nfp.model.Day
- *
- * @author Thomas Geier
- * Date: 25.06.11
- */
+  * GUI element to display and modify a Day object.
+  * @see nfp.model.Day
+  *
+  * @author Thomas Geier
+  * Date: 25.06.11
+  */
 class DayEditorPanel extends MigPanel {
+
   import nfp.DateConversion._
 
   case class StringOption(label: String, values: Seq[String], extractor: Day => Option[String], modifier: Option[String] => Day => Day, default: Option[String] = None)
+
   val stringOptions = Seq.empty[StringOption] :+
     StringOption(
       "Schleim",
@@ -87,10 +89,13 @@ class DayEditorPanel extends MigPanel {
   this.add(cbKlammer, "wrap")
 
   val soComboBoxes = stringOptions.map(so => so -> new ComboBox[String]("-" +: so.values))
-  soComboBoxes.foreach{ case (so, cb) =>
-    so.default.foreach{cb.selection.item = _}
-    this.add(new Label(so.label))
-    this.add(cb, "w 150, wrap")
+  soComboBoxes.foreach {
+    case (so, cb) =>
+      so.default.foreach {
+        cb.selection.item = _
+      }
+      this.add(new Label(so.label))
+      this.add(cb, "w 150, wrap")
   }
 
   val buttonSave: Button = new Button("Speichern")
@@ -107,20 +112,23 @@ class DayEditorPanel extends MigPanel {
   }
 
   def getDay: Option[Day] = {
-    val unfinishedResult: Option[Day] = for(
+    val unfinishedResult: Option[Day] = for (
       date <- Option(dateChooser.getDate);
       temperature = tfTemp.getValue.map(_.toFloat);
       klammern = !cbKlammer.selected
     ) yield new Day(date, temperature, None, None, None, None, None, Array.empty[Byte], klammern, None, None)
     val cbValues = soComboBoxes.map(_._2).map(extractOComboBox)
-    stringOptions.map(_.modifier).zip(cbValues).foldLeft(unfinishedResult){case (dayOpt,(mod,v)) => dayOpt.map(mod(v))}
+    stringOptions.map(_.modifier).zip(cbValues).foldLeft(unfinishedResult) {
+      case (dayOpt, (mod, v)) => dayOpt.map(mod(v))
+    }
   }
 
   def setContent(day: Day) {
     dateChooser.setDate(day.id)
     tfTemp.setValue(day.temperature)
-    soComboBoxes.foreach{case (so, cb) =>
-      cb.selection.item = so.extractor(day).getOrElse("-")
+    soComboBoxes.foreach {
+      case (so, cb) =>
+        cb.selection.item = so.extractor(day).getOrElse("-")
     }
     cbKlammer.selected = !day.ausklammern
   }

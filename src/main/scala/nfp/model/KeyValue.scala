@@ -19,7 +19,11 @@ package nfp.model
 
 import org.squeryl.KeyedEntity
 
-class KeyValue(val id: String,
-               val value: String) extends KeyedEntity[String] {
+/** ORM object for the properties table.
+  *
+  * @see DataBase
+  * @author Thomas Geier
+  */
+case class KeyValue(id: String, value: String) extends KeyedEntity[String] {
   def this() = this("","")
 }

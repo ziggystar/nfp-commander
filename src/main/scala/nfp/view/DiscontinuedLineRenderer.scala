@@ -17,28 +17,28 @@
 
 package nfp.view
 
-import org.jfree.data.xy.XYDataset
-import org.jfree.chart.axis.ValueAxis
-import java.awt.geom.Rectangle2D
-import org.jfree.chart.plot.{CrosshairState, XYPlot}
-import org.jfree.chart.entity.EntityCollection
-import org.jfree.chart.renderer.xy.{XYItemRendererState, XYLineAndShapeRenderer}
-import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries}
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer.State
-import java.awt.{Paint, Shape, Graphics2D}
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 
 /**
- * Created by IntelliJ IDEA.
- * User: thomas
- * Date: 24.10.11
- * Time: 21:49
- * To change this template use File | Settings | File Templates.
- */
-
+  * The custom graph renderer used for the NFP chart. Extra functionality over XYLineAndShapeRenderer is
+  *  - draw some shapes not filled, determined by a predicate function on the series index
+  *  - don't draw certain connections based on a predicate on the series index.
+  *
+  * @author Thomas Geier
+  * Date: 24.10.11
+  */
 class DiscontinuedLineRenderer extends XYLineAndShapeRenderer {
-  var renderLinePredicate: Int => Boolean = null
-  var fillItemShape: Int => Boolean = null
 
+  /**
+    * If this returns false for a series index, then the line to the left of the point is nor drawn.
+    */
+  var renderLinePredicate: Int => Boolean = null
+
+  //todo: change this so the corresponding shape gets filled with white or a custom color
+  /**
+    * If this function returns false for a series index, then the corresponding shape will not be filled.
+    */
+  var fillItemShape: Int => Boolean = null
 
   override def getItemLineVisible(series: Int, item: Int): Boolean = (renderLinePredicate == null) || renderLinePredicate(item)
 
