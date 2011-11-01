@@ -17,16 +17,16 @@
 
 package nfp.view
 
+import nfp.model.{Day, DataBase}
+import nfp.DateConversion._
+import collection.mutable.Set
+import java.awt.geom.Ellipse2D
 import swing._
 import event.TableRowsSelected
-
 import org.squeryl.PrimitiveTypeMode._
-import collection.mutable.Set
-import nfp.model.{Day, DataBase}
 import org.jfree.chart.{ChartPanel, JFreeChart}
 import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.axis.{DateAxis, NumberAxis}
-import java.awt.geom.Ellipse2D
 import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
 
 /**
@@ -100,6 +100,7 @@ object Main extends App with Reactor {
   this.listenTo(dayEditor)
   this.reactions += {
     case DayModifiedEvent(d) => chartUpdateItem(d)
+    case DaySelectedEvent(date) => DataBase.getDayAtDate(date).foreach{dayEditor.setContent}
   }
   val panel = new MigPanel
 

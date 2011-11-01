@@ -20,6 +20,7 @@ package nfp.model
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl.{Session, SessionFactory, Schema}
 import org.squeryl.adapters.H2Adapter
+import java.sql.Date
 
 /** This holds the layout for the database. Particularly it specifies all tables.
   *
@@ -46,6 +47,10 @@ object DataBase extends Schema {
     */
   def getProperty(key: String): Option[String] = transaction{
     from(properties)(p => where(p.id === key) select p.value).headOption
+  }
+
+  def getDayAtDate(date: Date): Option[Day] = transaction {
+    from(days)(d => where(d.id === date) select d).headOption
   }
 
   /** Do everything necessary after application start to use the database. Also check that the db layout is current.

@@ -23,6 +23,7 @@ import nfp.model.Day
 import java.util.Date
 import javax.swing.BorderFactory
 import com.toedter.calendar.JDateChooser
+import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 
 /**
   * GUI element to display and modify a Day object.
@@ -77,13 +78,13 @@ class DayEditorPanel extends MigPanel {
 
   this.peer.setBorder(BorderFactory.createTitledBorder("Eintragen/Ändern"))
 
-  val dateChooser: JDateChooser = new JDateChooser(new Date)
+  private val dateChooser: JDateChooser = new JDateChooser(new Date)
   this.add(new Label("Tag"))
   this.add(Component.wrap(dateChooser), "w 150, wrap")
 
   val tfTemp: TextFieldFloatOption = new TextFieldFloatOption
   this.add(new Label("Temperatur"))
-  val cbKlammer: CheckBox = new CheckBox
+  private val cbKlammer: CheckBox = new CheckBox
   cbKlammer.selected = true
   this.add(tfTemp, "split 2, grow")
   this.add(cbKlammer, "wrap")
@@ -106,6 +107,14 @@ class DayEditorPanel extends MigPanel {
     case swing.event.ActionEvent(c) if (c == buttonSave) => getDay.foreach(day => publish(DayModifiedEvent(day)))
   }
 
+  val dateChooserListener = new PropertyChangeListener {
+    def propertyChange(p1: PropertyChangeEvent) {
+      if(p1.getSource == dateChooser)
+        publish(DaySelectedEvent(dateChooser.getDate))
+    }
+  }
+  dateChooser.addPropertyChangeListener(dateChooserListener)
+
   def extractOComboBox(cb: ComboBox[String]): Option[String] = cb.item match {
     case "-" => None
     case x => Some(x)
@@ -124,7 +133,10 @@ class DayEditorPanel extends MigPanel {
   }
 
   def setContent(day: Day) {
+    dateChooser.removePropertyChangeListener(dateChooserListener)
     dateChooser.setDate(day.id)
+    dateChooser.addPropertyChangeListener(dateChooserListener)
+
     tfTemp.setValue(day.temperature)
     soComboBoxes.foreach {
       case (so, cb) =>
@@ -135,4 +147,5 @@ class DayEditorPanel extends MigPanel {
 }
 
 case class DayModifiedEvent(newValue: Day) extends Event
+case class DaySelectedEvent(date: Date) extends Event
 
