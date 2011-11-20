@@ -28,6 +28,7 @@ import java.sql.Date
   */
 object DataBase extends Schema {
 
+  //see the file doc/db-versions.md
   val currentVersion = "1"
 
   /** The days table holds NFP data associated to a particular day.
