@@ -32,12 +32,10 @@ class NFPTableModel extends AbstractTableModel with Reactor {
 
   import DataBase._
 
-  val names = List("Datum", "Temperatur", "Schleim", "Mumu Pos", "Mumu Öffnung", "Mumu Härte")
+  val names = List("Datum", "Temperatur", "Schleim", "Mumu Pos", "Mumu Öffnung", "Mumu Härte", "Blutung", "Sex")
 
-  private def createTransaction: IndexedSeq[Day] = {
-    transaction {
-      from(days)(d => select(d) orderBy (d.id).desc).toIndexedSeq
-    }
+  private def createTransaction: IndexedSeq[Day] = transaction {
+    from(days)(d => select(d) orderBy (d.id).desc).toIndexedSeq
   }
 
   private var query = createTransaction
@@ -51,7 +49,6 @@ class NFPTableModel extends AbstractTableModel with Reactor {
       case 1 => "gestern"
       case x => d.toString
     }
-
   }
 
   def getValueAt(row: Int, col: Int): AnyRef = {
@@ -64,10 +61,12 @@ class NFPTableModel extends AbstractTableModel with Reactor {
       case 3 => prettifyOption(rowQuery.mumuPosition)
       case 4 => prettifyOption(rowQuery.mumuOpen)
       case 5 => prettifyOption(rowQuery.mumuFest)
+      case 6 => prettifyOption(rowQuery.blutung)
+      case 7 => prettifyOption(rowQuery.sex)
     }
   }
 
-  def getColumnCount: Int = 6
+  def getColumnCount: Int = 8
 
   def getRowCount: Int = query.size
 
