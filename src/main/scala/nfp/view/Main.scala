@@ -28,6 +28,7 @@ import org.jfree.chart.{ChartPanel, JFreeChart}
 import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.axis.{DateAxis, NumberAxis}
 import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
+import org.squeryl.Session
 
 /**
   * The main executable.
@@ -43,6 +44,14 @@ object NFPCalculations {
 object Main extends App with Reactor {
   //init squeryl session factory
   DataBase.initDB("jdbc:h2:~/.nfp-commander/data")
+
+  //handle options
+  {
+    if(args.contains("--printDDL")){
+      transaction{DataBase.printDdl}
+      System.exit(0)
+    }
+  }
 
   val frame = new MainFrame
   frame.title = "nfp commander"

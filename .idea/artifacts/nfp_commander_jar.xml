@@ -8,12 +8,7 @@
         </element>
         <element id="module-output" name="nfp-commander" />
       </element>
-      <element id="library" level="project" name="squeryl" />
-      <element id="library" level="project" name="miglayout" />
-      <element id="library" level="project" name="jodaTime" />
       <element id="library" level="application" name="scala-lib-current" />
-      <element id="library" level="project" name="jFreeChart" />
-      <element id="library" level="project" name="db-h2" />
     </root>
   </artifact>
 </component>

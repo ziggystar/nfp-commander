@@ -21,6 +21,7 @@ import org.squeryl.PrimitiveTypeMode._
 import org.squeryl.{Session, SessionFactory, Schema}
 import org.squeryl.adapters.H2Adapter
 import java.sql.Date
+import org.squeryl.internals.DatabaseAdapter
 
 /** This holds the layout for the database. Particularly it specifies all tables.
   *
@@ -29,12 +30,14 @@ import java.sql.Date
 object DataBase extends Schema {
 
   //see the file doc/db-versions.md
-  val currentVersion = "1"
+  val currentVersion = "2"
 
   /** The days table holds NFP data associated to a particular day.
     * @see Day
     */
   val days = table[Day]
+
+  val cycles = table[Cycle]
 
   /** The properties table holds key/value pairs like options or database layout versions.
     */
@@ -42,7 +45,13 @@ object DataBase extends Schema {
 
   /** Store a key/value pair in the properties table.
     */
-  def putProperty(key: String, value: String) = transaction{properties.insertOrUpdate(new KeyValue(key, value))}
+  def putProperty(key: String, value: String) = transaction{
+    try {
+      properties.insertOrUpdate(new KeyValue(key, value))
+    } catch {
+      case x => properties.update(new KeyValue(key, value))
+    }
+  }
 
   /** Retrieve a value for a given key from the properties table.
     */
@@ -66,11 +75,18 @@ object DataBase extends Schema {
 
     {
       val foundDBVersion: Option[String] = DataBase.getProperty("db-version")
-      assert(foundDBVersion == Some(currentVersion),
-        foundDBVersion
-          .map("found db version %s, expected %s".format(_, currentVersion))
-          .getOrElse("could not find property 'db-version'")
-      )
+      foundDBVersion match {
+        case None => {
+          System.err.println("could not retrieve db version from properties table")
+          System.exit(-1)
+        }
+        case Some("1") => migrate1to2()
+        case Some("2") => //everything's fine
+        case Some(v) => {
+          System.err.println("found db version %s, expected %s".format(v, currentVersion))
+          System.exit(-1)
+        }
+      }
     }
   }
 
@@ -81,6 +97,17 @@ object DataBase extends Schema {
       DataBase.create
       DataBase.putProperty("db-version", currentVersion)
     }
+  }
+
+  def migrate1to2() {
+    transaction {
+      val dbAdapt: DatabaseAdapter = Session.currentSession.databaseAdapter
+      val statementW = dbAdapt.string2StatementWriter("")
+      dbAdapt.writeCreateTable(cycles, statementW, this)
+      val alterResult = dbAdapt.executeUpdate(Session.currentSession, statementW)
+      println("updated db layout from version 1 to 2:\n%s".format(alterResult))
+    }
+    putProperty("db-version", "2")
   }
 }
 
