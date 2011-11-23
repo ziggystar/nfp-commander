@@ -17,18 +17,14 @@
 
 package nfp.view
 
-import nfp.model.{Day, DataBase}
-import nfp.DateConversion._
+import nfp.model.DataBase
 import collection.mutable.Set
-import java.awt.geom.Ellipse2D
 import swing._
 import event.TableRowsSelected
 import org.squeryl.PrimitiveTypeMode._
-import org.jfree.chart.{ChartPanel, JFreeChart}
-import org.jfree.chart.plot.XYPlot
-import org.jfree.chart.axis.{DateAxis, NumberAxis}
-import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
-import org.squeryl.Session
+import org.jfree.data.time.{Day => JFDay}
+import swing.TabbedPane.Page
+import org.joda.time.DateTime
 
 /**
   * The main executable.
@@ -68,55 +64,26 @@ object Main extends App with Reactor {
   }
   dayTable.listenTo(dayTable.selection)
   dayTable.model = dayTableModel
-  dayTableModel.listenTo(dayEditor)
 
-  val timeSeries = new TimeSeries("Temperatur", "T [°C]", "Datum")
+  val chartPage = new ChartPage
+  val dayTablePage = new MigPanel
+  val cyclesPage = new MigPanel
 
-  def chartUpdateItem(day: Day) {
-    val item: DaySeriesItem = new DaySeriesItem(day)
-    timeSeries.delete(item.getPeriod)
-    timeSeries.add(item, true)
-  }
+  dayTablePage.add(dayEditor)
+  dayTablePage.add(new ScrollPane(dayTable), "growy, push")
 
-  class DaySeriesItem(val day: Day) extends TimeSeriesDataItem(new JFDay(day.id), day.temperature.getOrElse(0f))
-
-  transaction {
-    DataBase.days.iterator.filter(_.temperature.isDefined).map(new DaySeriesItem(_)).foreach(timeSeries.add)
-  }
-
-  val numberAxis: NumberAxis = new NumberAxis("Temperatur/°C")
-  numberAxis.setRange(35d, 38d)
-  val renderer = new DiscontinuedLineRenderer
-  renderer.setSeriesShape(0, new Ellipse2D.Double(-3, -3, 6, 6))
-  renderer.renderLinePredicate = timeData => timeData > 0 && (
-    timeSeries.getDataItem(timeData - 1).getPeriod.asInstanceOf[JFDay].next == timeSeries.getDataItem(timeData).getPeriod
-    )
-  renderer.fillItemShape = seriesItem => !timeSeries.getDataItem(seriesItem).asInstanceOf[DaySeriesItem].day.ausklammern
-  renderer.setDrawSeriesLineAsPath(false)
-  val plot = new XYPlot(
-    new TimeSeriesCollection(timeSeries),
-    new DateAxis("Tag"),
-    numberAxis,
-    renderer
-  )
-  val chart: JFreeChart = new JFreeChart(plot)
-  chart.removeLegend()
-  val chartPanel = new ChartPanel(chart)
-  chartPanel.setDomainZoomable(false)
-  chartPanel.setFillZoomRectangle(false)
-  chartPanel.setPopupMenu(null)
-
-  this.listenTo(dayEditor)
-  this.reactions += {
-    case DayModifiedEvent(d) => chartUpdateItem(d)
-    case DaySelectedEvent(date) => DataBase.getDayAtDate(date).foreach{dayEditor.setContent}
-  }
-  val panel = new MigPanel
-
-  panel.add(dayEditor, "h 300, growy")
-  panel.add(Component.wrap(chartPanel), "h 300, grow, push, wrap, left")
-  panel.add(new ScrollPane(dayTable), "span, h 180, grow, push")
-
-  frame.contents = panel
+  val tabbedPane = new TabbedPane
+  tabbedPane.pages += new Page("Kurve", chartPage)
+  tabbedPane.pages += new Page("Tage", dayTablePage)
+  tabbedPane.pages += new Page("Zyklen", cyclesPage)
+  frame.contents = tabbedPane
   frame.open()
+}
+
+class ChartPage extends MigPanel {
+  val dayEditor = new DayEditorPanel
+  val chart = new NFPChart(endDate = new DateTime, beginDate = (new DateTime).minusMonths(1))
+
+  this.add(dayEditor)
+  this.add(chart)
 }

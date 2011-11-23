@@ -19,11 +19,11 @@ package nfp.view
 
 import swing._
 import event.Event
-import nfp.model.Day
 import java.util.Date
 import javax.swing.BorderFactory
 import com.toedter.calendar.JDateChooser
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
+import nfp.model.{DataBase, Day}
 
 /**
   * GUI element to display and modify a Day object.
@@ -104,13 +104,15 @@ class DayEditorPanel extends MigPanel {
 
   listenTo(buttonSave)
   reactions += {
-    case swing.event.ActionEvent(c) if (c == buttonSave) => getDay.foreach(day => publish(DayModifiedEvent(day)))
+    case swing.event.ActionEvent(c) if (c == buttonSave) => getDay.foreach(DataBase.createOrUpdateDay)
   }
 
   val dateChooserListener = new PropertyChangeListener {
     def propertyChange(p1: PropertyChangeEvent) {
-      if(p1.getSource == dateChooser)
+      if(p1.getSource == dateChooser){
         publish(DaySelectedEvent(dateChooser.getDate))
+        DataBase.getDayAtDate(dateChooser.getDate).foreach(setContent(_))
+      }
     }
   }
   dateChooser.addPropertyChangeListener(dateChooserListener)
@@ -146,6 +148,5 @@ class DayEditorPanel extends MigPanel {
   }
 }
 
-case class DayModifiedEvent(newValue: Day) extends Event
 case class DaySelectedEvent(date: Date) extends Event
 

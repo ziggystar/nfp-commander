@@ -72,15 +72,9 @@ class NFPTableModel extends AbstractTableModel with Reactor {
 
   def getDayAt(row: Int): Day = query(row)
 
+  this.listenTo(DataBase.dayModified)
   reactions += {
     case DayModifiedEvent(day) => {
-      transaction {
-        try {
-          days.update(day)
-        } catch {
-          case x => days.insert(day)
-        }
-      }
       query = createTransaction
       this.fireTableDataChanged()
     }

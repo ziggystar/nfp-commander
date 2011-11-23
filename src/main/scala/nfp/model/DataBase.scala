@@ -22,12 +22,16 @@ import org.squeryl.{Session, SessionFactory, Schema}
 import org.squeryl.adapters.H2Adapter
 import java.sql.Date
 import org.squeryl.internals.DatabaseAdapter
+import swing.Publisher
+import swing.event.Event
 
 /** This holds the layout for the database. Particularly it specifies all tables.
   *
   * @author Thomas Geier
   */
 object DataBase extends Schema {
+  case class DayModifiedEvent(newValue: Day) extends Event
+  val dayModified: Publisher = new Publisher{}
 
   //see the file doc/db-versions.md
   val currentVersion = "2"
@@ -61,6 +65,17 @@ object DataBase extends Schema {
 
   def getDayAtDate(date: Date): Option[Day] = transaction {
     from(days)(d => where(d.id === date) select d).headOption
+  }
+
+  def createOrUpdateDay(day: Day) {
+    transaction {
+      try {
+        days.update(day)
+      } catch {
+        case x => days.insert(day)
+      }
+    }
+    dayModified.publish(DayModifiedEvent(day))
   }
 
   /** Do everything necessary after application start to use the database. Also check that the db layout is current.
@@ -110,5 +125,4 @@ object DataBase extends Schema {
     putProperty("db-version", "2")
   }
 }
-
 
