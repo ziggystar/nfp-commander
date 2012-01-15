@@ -17,73 +17,123 @@
 
 package nfp.view
 
-import nfp.model.DataBase
 import collection.mutable.Set
 import swing._
-import event.TableRowsSelected
+import event.{Event, TableRowsSelected}
 import org.squeryl.PrimitiveTypeMode._
-import org.jfree.data.time.{Day => JFDay}
 import swing.TabbedPane.Page
 import org.joda.time.DateTime
+import nfp.model._
 
 /**
-  * The main executable.
-  * Connecting to DB, build the GUI.
-  *
-  * @author Thomas Geier
-  * Date: 25.06.11
-  */
+ * The main executable.
+ * Connecting to DB, build the GUI.
+ *
+ * @author Thomas Geier
+ * Date: 25.06.11
+ */
 object NFPCalculations {
   def roundTemperature(t: Float): Float = math.round(t * 20) / 20f
 }
 
-object Main extends App with Reactor {
-  //init squeryl session factory
-  DataBase.initDB("jdbc:h2:~/.nfp-commander/data")
+object Main extends Reactor {
 
-  //handle options
-  {
-    if(args.contains("--printDDL")){
-      transaction{DataBase.printDdl}
+  def main(args: Array[String]) {
+    //init squeryl session factory
+    DataBase.initDB()
+
+    //handle options
+    if (args.contains("--printDDL")) {
+      transaction {
+        DataBase.printDdl
+      }
       System.exit(0)
     }
+
+    val frame = new MainFrame
+    frame.title = "nfp commander"
+
+    val dayTableModel = new NFPTableModel
+    val dayTable = new Table
+    val dayEditor = new DayEditorPanel
+
+    dayTable.reactions += {
+      case e: TableRowsSelected =>
+        val selection: Set[Int] = dayTable.selection.cells.map(_._1)
+        if (selection.size == 1)
+          dayEditor.setContent(dayTableModel.getRowAt(selection.min))
+    }
+    dayTable.listenTo(dayTable.selection)
+    dayTable.model = dayTableModel
+
+    val chartPage = new ChartPage(DataBase.currentCycle)
+    val dayTablePage = new MigPanel
+    val cyclesPage = new CyclesPage
+
+    dayTablePage.add(dayEditor)
+    dayTablePage.add(new ScrollPane(dayTable), "growy, push")
+
+    val tabbedPane = new TabbedPane
+    tabbedPane.pages += new Page("Kurve", chartPage)
+    tabbedPane.pages += new Page("Tage", dayTablePage)
+    tabbedPane.pages += new Page("Zyklen", cyclesPage)
+    frame.contents = tabbedPane
+    frame.open()
   }
-
-  val frame = new MainFrame
-  frame.title = "nfp commander"
-
-  val dayTableModel = new NFPTableModel
-  val dayTable = new Table
-  val dayEditor = new DayEditorPanel
-
-  dayTable.reactions += {
-    case e: TableRowsSelected =>
-      val selection: Set[Int] = dayTable.selection.cells.map(_._1)
-      if (selection.size == 1)
-        dayEditor.setContent(dayTableModel.getDayAt(selection.min))
-  }
-  dayTable.listenTo(dayTable.selection)
-  dayTable.model = dayTableModel
-
-  val chartPage = new ChartPage
-  val dayTablePage = new MigPanel
-  val cyclesPage = new MigPanel
-
-  dayTablePage.add(dayEditor)
-  dayTablePage.add(new ScrollPane(dayTable), "growy, push")
-
-  val tabbedPane = new TabbedPane
-  tabbedPane.pages += new Page("Kurve", chartPage)
-  tabbedPane.pages += new Page("Tage", dayTablePage)
-  tabbedPane.pages += new Page("Zyklen", cyclesPage)
-  frame.contents = tabbedPane
-  frame.open()
 }
 
-class ChartPage extends MigPanel {
-  val dayEditor = new DayEditorPanel
-  val chart = new NFPChart(endDate = new DateTime, beginDate = (new DateTime).minusMonths(1))
+/**Tracks a cycle and notifies if the cycle or its end date (which is defined by the start date of the next cycle) changes.
+ * If the cycle gets deleted it jumps to the next cycle.
+ * @param myCycle Cycle to start with.
+ */
+class CycleTracker(private var myCycle: Cycle) extends Reactor with Publisher {
+  case class CycleModified(cycle: Cycle) extends Event
 
+  this.listenTo(DataBase.modifications)
+  this.reactions += {
+    case CycleDeletedEvent(dc) => {
+      if (dc == cycle) {
+        myCycle = DataBase.cycleForDate(cycle.id)
+      }
+      update()
+    }
+    case ce: CycleEvent => update()
+  }
+
+  def cycle: Cycle = myCycle
+  def setCycle(c: Cycle) {
+    myCycle = c
+    update()
+  }
+
+  def update() {
+    this.publish(CycleModified(myCycle))
+  }
+}
+
+class ChartPage(_cycle: Cycle) extends MigPanel {
+
+  import nfp.DateConversion._
+
+  private val cycleTracker = new CycleTracker(_cycle)
+
+  val dayEditor = new DayEditorPanel
+  val chart = new NFPChart(endDate = cycleTracker.cycle.lastDate, beginDate = cycleTracker.cycle.id)
+
+  this.listenTo(cycleTracker)
+  this.reactions += {
+    case cycleTracker.CycleModified(c) => {
+      updatePlotRanges()
+    }
+  }
   this.add(dayEditor)
   this.add(chart)
+
+  private def updatePlotRanges() {
+    chart.setRange(cycleTracker.cycle.id, cycleTracker.cycle.lastDate)
+  }
+
+  def setNewCycle(newCycle: Cycle) {
+    cycleTracker.setCycle(newCycle)
+  }
 }

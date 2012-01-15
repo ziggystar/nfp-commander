@@ -39,48 +39,50 @@ import org.squeryl.PrimitiveTypeMode._
 import org.jfree.chart.{ChartPanel, JFreeChart}
 import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.axis.{DateAxis, NumberAxis}
-import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
 import org.joda.time.DateTime
-import nfp.model.{Day, DataBase}
 import swing.Component
-import nfp.model.DataBase.DayModifiedEvent
+import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
+import nfp.DateConversion._
+import java.sql.Date
+import nfp.model.{TableModifiedEvent, Day, DataBase}
 
 /**
-  * GUI component to display a NFP chart.
+  * GUI component to display a NFP chart. It provides a view into the temperature series provided by the days table.
+  * It updates its display if rows in this table change.
   *
   * @author Thomas Geier
   * Date: 25.06.11
   */
 class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) extends MigPanel {
-
   val timeSeries = new TimeSeries("Temperatur", "T [°C]", "Datum")
-
-  def chartUpdateItem(day: Day) {
-    if(beginDate.isBefore(day.id.getTime) && endDate.isAfter(day.id.getTime)){
-      val item: DaySeriesItem = new DaySeriesItem(day)
-      timeSeries.delete(item.getPeriod)
-      timeSeries.add(item, true)
-    }
-  }
 
   class DaySeriesItem(val day: Day) extends TimeSeriesDataItem(new JFDay(day.id), day.temperature.getOrElse(0f))
 
-  transaction {
-    DataBase.days.iterator.filter(_.temperature.isDefined).map(new DaySeriesItem(_)).foreach(timeSeries.add)
+  private def updateCache() {
+    timeSeries.clear()
+    transaction {
+      from(DataBase.days)(d =>
+        where((d.id gt (beginDate: Date)) and (d.id lt (endDate: Date)) and (d.temperature isNotNull))
+          select(d)
+      ).foreach{d => timeSeries.add(new DaySeriesItem(d))}
+    }
   }
+
+  updateCache()
 
   val numberAxis: NumberAxis = new NumberAxis("Temperatur/°C")
   numberAxis.setRange(35d, 38d)
+  val dateAxis: DateAxis = new DateAxis("Tag")
   val renderer = new DiscontinuedLineRenderer
   renderer.setSeriesShape(0, new Ellipse2D.Double(-3, -3, 6, 6))
   renderer.renderLinePredicate = timeData => timeData > 0 && (
-    timeSeries.getDataItem(timeData - 1).getPeriod.asInstanceOf[JFDay].next == timeSeries.getDataItem(timeData).getPeriod
-    )
+  timeSeries.getDataItem(timeData - 1).getPeriod.asInstanceOf[JFDay].next == timeSeries.getDataItem(timeData).getPeriod
+  )
   renderer.fillItemShape = seriesItem => !timeSeries.getDataItem(seriesItem).asInstanceOf[DaySeriesItem].day.ausklammern
   renderer.setDrawSeriesLineAsPath(false)
   val plot = new XYPlot(
     new TimeSeriesCollection(timeSeries),
-    new DateAxis("Tag"),
+    dateAxis,
     numberAxis,
     renderer
   )
@@ -90,14 +92,19 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
   chartPanel.setFillZoomRectangle(false)
   chartPanel.setPopupMenu(null)
 
-  this.listenTo(DataBase.dayModified)
+  this.listenTo(DataBase.modifications)
   this.reactions += {
-    case DayModifiedEvent(day) => {
-      chartUpdateItem(day)
-    }
+    case TableModifiedEvent(table) if(table == DataBase.days) => updateCache()
   }
 
   this.add(Component.wrap(chartPanel))
+
+
+  def setRange(begin: DateTime, end: DateTime) {
+    beginDate = begin
+    endDate = end
+    updateCache()
+  }
 }
 
 

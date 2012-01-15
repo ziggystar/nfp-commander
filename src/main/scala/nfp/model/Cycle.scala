@@ -19,17 +19,26 @@ package nfp.model
 
 import java.sql.Date
 import org.squeryl.KeyedEntity
+import java.lang.String
 
 /**
- * Representation class for data in day table.
+ * Representation class for data in day table. Only contains a comment and a start date. End date is defined
+ * by the start date of the next cycle.
  */
 case class Cycle(id: Date,
                  comment: Array[Byte]
            ) extends KeyedEntity[Date] {
+  def lastDate: Date = DataBase.getCycleWithIndex(DataBase.cycleIndexOf(this) + 1)
+    .map(_.id).getOrElse(
+    new Date(new java.util.Date().getTime)
+  )
+
   def this() = this(
     new java.sql.Date(0),
     Array.empty[Byte]
   )
+
+  override def toString: String = "Cycle(%s, %s)".format(id, new String(comment, "UTF8"))
 }
 
 

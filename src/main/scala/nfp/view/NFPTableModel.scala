@@ -17,8 +17,7 @@
 
 package nfp.view
 
-import swing._
-import javax.swing.table.AbstractTableModel
+import swing.{Table => _, _}
 import org.squeryl.PrimitiveTypeMode._
 import org.joda.time.LocalDate
 import nfp.model.{Day, DataBase}
@@ -28,17 +27,12 @@ import nfp.DateConversion._
   *
   * @author Thomas Geier
   */
-class NFPTableModel extends AbstractTableModel with Reactor {
-
-  import DataBase._
+class NFPTableModel extends DBTableModel(
+  DataBase.days,
+  from(DataBase.days)(d => select(d) orderBy(d.id asc))
+) with Reactor {
 
   val names = List("Datum", "Temperatur", "Schleim", "Mumu Pos", "Mumu Öffnung", "Mumu Härte", "Blutung", "Sex")
-
-  private def createTransaction: IndexedSeq[Day] = transaction {
-    from(days)(d => select(d) orderBy (d.id).desc).toIndexedSeq
-  }
-
-  private var query = createTransaction
 
   override def getColumnName(p1: Int): String = names(p1)
 
@@ -51,34 +45,21 @@ class NFPTableModel extends AbstractTableModel with Reactor {
     }
   }
 
-  def getValueAt(row: Int, col: Int): AnyRef = {
-    val rowQuery: Day = query(row)
+  def getColumnOfRow(day: Day, col: Int): AnyRef = {
     def prettifyOption[A](option: Option[A]): String = option.map(_.toString).getOrElse("")
     col match {
-      case 0 => prettifyDate(rowQuery.id)
-      case 1 => rowQuery.temperature.map(t => (if (rowQuery.ausklammern) "(%.2f°C)" else "%.2f°C") format t).getOrElse("")
-      case 2 => prettifyOption(rowQuery.schleim)
-      case 3 => prettifyOption(rowQuery.mumuPosition)
-      case 4 => prettifyOption(rowQuery.mumuOpen)
-      case 5 => prettifyOption(rowQuery.mumuFest)
-      case 6 => prettifyOption(rowQuery.blutung)
-      case 7 => prettifyOption(rowQuery.sex)
+      case 0 => prettifyDate(day.id)
+      case 1 => day.temperature.map(t => (if (day.ausklammern) "(%.2f°C)" else "%.2f°C") format t).getOrElse("")
+      case 2 => prettifyOption(day.schleim)
+      case 3 => prettifyOption(day.mumuPosition)
+      case 4 => prettifyOption(day.mumuOpen)
+      case 5 => prettifyOption(day.mumuFest)
+      case 6 => prettifyOption(day.blutung)
+      case 7 => prettifyOption(day.sex)
     }
   }
 
   def getColumnCount: Int = 8
-
-  def getRowCount: Int = query.size
-
-  def getDayAt(row: Int): Day = query(row)
-
-  this.listenTo(DataBase.dayModified)
-  reactions += {
-    case DayModifiedEvent(day) => {
-      query = createTransaction
-      this.fireTableDataChanged()
-    }
-  }
 }
 
 
