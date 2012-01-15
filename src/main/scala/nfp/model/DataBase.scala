@@ -95,13 +95,18 @@ object DataBase extends Schema {
     cycles.drop(cycIndex).headOption
   }
 
-  def firstCycle: Cycle = Cycle(getFirstDay.map(_.id).getOrElse(new DateTime), "unnamed first cycle".getBytes)
+  def firstCycle: Option[Cycle] = Some(Cycle(getFirstDay.map(_.id).getOrElse(new DateTime), "unnamed first cycle".getBytes))
+  def lastCycle: Option[Cycle] = inTransaction{from(cycles)(c => select(c) orderBy(c.id desc)).headOption}
+  /** @return The next cycle with id greater (not equal) than given date. */
+  def nextCycle(date: Date): Option[Cycle] = inTransaction{from(cycles)(c => where(c.id gt date) select(c) orderBy(c.id asc)).headOption}
+  /** @return The next cycle with id less (not equal) than given date. */
+  def prevCycle(date: Date): Option[Cycle] = inTransaction{from(cycles)(c => where(c.id lt date) select(c) orderBy(c.id desc)).headOption}
 
-  def currentCycle: Cycle = getCycleWithIndex(getCurrentCycleIndex).getOrElse(firstCycle)
+  def currentCycle: Cycle = getCycleWithIndex(getCurrentCycleIndex).getOrElse(firstCycle.get /*always defined*/)
 
   def cycleForDate(date: Date) = inTransaction {
     from(cycles)(c => where(c.id lt date) select(c) orderBy(c.id desc))
-  }.headOption.getOrElse(firstCycle)
+  }.headOption.getOrElse(firstCycle.get /*always defined*/)
 
   def cycleIndexOf(cycle: Cycle): Int = inTransaction {
     cycles.toList.indexOf(cycle) + 1
@@ -109,13 +114,17 @@ object DataBase extends Schema {
 
   def addCycle(cycle: Cycle) {
     inTransaction {
-      try {
-        cycles.insert(cycle)
-        modifications.publish(CycleCreatedEvent(cycle))
-      } catch {
-        case x => cycles.update(cycle)
+      val oldValueOption = from(cycles)(c => where(c.id === cycle.id) select c).headOption
+      oldValueOption match {
+        case Some(old) => {
+          cycles.update(cycle)
+          modifications.publish(CycleModifiedEvent(cycle,old))
+        }
+        case None => {
+          cycles.insert(cycle)
+          modifications.publish(CycleCreatedEvent(cycle))
+        }
       }
-      modifications.publish(CycleModifiedEvent(cycle))
     }
   }
 
@@ -212,7 +221,9 @@ sealed trait CycleEvent extends TableModifiedEvent[Cycle] {
   def affectedTable: Table[Cycle] = DataBase.cycles
   def cycle: Cycle
 }
-case class CycleModifiedEvent(cycle: Cycle) extends CycleEvent
+case class CycleModifiedEvent(newCycle: Cycle, oldCycle: Cycle) extends CycleEvent{
+  def cycle = oldCycle
+}
 case class CycleCreatedEvent(cycle: Cycle) extends CycleEvent
 case class CycleDeletedEvent(cycle: Cycle) extends CycleEvent
 

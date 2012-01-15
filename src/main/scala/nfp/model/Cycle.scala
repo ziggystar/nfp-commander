@@ -41,4 +41,3 @@ case class Cycle(id: Date,
   override def toString: String = "Cycle(%s, %s)".format(id, new String(comment, "UTF8"))
 }
 
-

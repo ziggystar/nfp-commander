@@ -36,7 +36,6 @@ package nfp.view
 
 import java.awt.geom.Ellipse2D
 import org.squeryl.PrimitiveTypeMode._
-import org.jfree.chart.{ChartPanel, JFreeChart}
 import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.axis.{DateAxis, NumberAxis}
 import org.joda.time.DateTime
@@ -45,6 +44,7 @@ import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries
 import nfp.DateConversion._
 import java.sql.Date
 import nfp.model.{TableModifiedEvent, Day, DataBase}
+import org.jfree.chart.{ChartMouseEvent, ChartMouseListener, ChartPanel, JFreeChart}
 
 /**
   * GUI component to display a NFP chart. It provides a view into the temperature series provided by the days table.
@@ -91,6 +91,15 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
   val chartPanel = new ChartPanel(chart)
   chartPanel.setFillZoomRectangle(false)
   chartPanel.setPopupMenu(null)
+
+  //add listener for selecting points on the chart
+  chartPanel.addChartMouseListener(new ChartMouseListener{
+    def chartMouseClicked(p1: ChartMouseEvent) {
+      println(p1 + "/" + p1.getEntity + "/" + p1.getTrigger)
+    }
+
+    def chartMouseMoved(p1: ChartMouseEvent) {}
+  })
 
   this.listenTo(DataBase.modifications)
   this.reactions += {

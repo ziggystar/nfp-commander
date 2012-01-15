@@ -82,35 +82,6 @@ object Main extends Reactor {
   }
 }
 
-/**Tracks a cycle and notifies if the cycle or its end date (which is defined by the start date of the next cycle) changes.
- * If the cycle gets deleted it jumps to the next cycle.
- * @param myCycle Cycle to start with.
- */
-class CycleTracker(private var myCycle: Cycle) extends Reactor with Publisher {
-  case class CycleModified(cycle: Cycle) extends Event
-
-  this.listenTo(DataBase.modifications)
-  this.reactions += {
-    case CycleDeletedEvent(dc) => {
-      if (dc == cycle) {
-        myCycle = DataBase.cycleForDate(cycle.id)
-      }
-      update()
-    }
-    case ce: CycleEvent => update()
-  }
-
-  def cycle: Cycle = myCycle
-  def setCycle(c: Cycle) {
-    myCycle = c
-    update()
-  }
-
-  def update() {
-    this.publish(CycleModified(myCycle))
-  }
-}
-
 class ChartPage(_cycle: Cycle) extends MigPanel {
 
   import nfp.DateConversion._
@@ -118,22 +89,24 @@ class ChartPage(_cycle: Cycle) extends MigPanel {
   private val cycleTracker = new CycleTracker(_cycle)
 
   val dayEditor = new DayEditorPanel
-  val chart = new NFPChart(endDate = cycleTracker.cycle.lastDate, beginDate = cycleTracker.cycle.id)
+  val chart = new NFPChart(endDate = cycleTracker.get.lastDate, beginDate = cycleTracker.get.id)
 
   this.listenTo(cycleTracker)
   this.reactions += {
-    case cycleTracker.CycleModified(c) => {
+    case cycleTracker.EntityChangedEvent(c) => {
       updatePlotRanges()
     }
   }
   this.add(dayEditor)
-  this.add(chart)
+  this.add(chart, "wrap")
+  this.add(cycleTracker.createSkipPrevButton("Letzter Zyklus"))
+  this.add(cycleTracker.createSkipNextButton("Nächster Zyklus"))
 
   private def updatePlotRanges() {
-    chart.setRange(cycleTracker.cycle.id, cycleTracker.cycle.lastDate)
+    chart.setRange(cycleTracker.get.id, cycleTracker.get.lastDate)
   }
 
   def setNewCycle(newCycle: Cycle) {
-    cycleTracker.setCycle(newCycle)
+    cycleTracker.set(newCycle)
   }
 }
