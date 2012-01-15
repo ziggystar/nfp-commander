@@ -28,8 +28,7 @@ import java.lang.String
 case class Cycle(id: Date,
                  comment: Array[Byte]
            ) extends KeyedEntity[Date] {
-  def lastDate: Date = DataBase.getCycleWithIndex(DataBase.cycleIndexOf(this) + 1)
-    .map(_.id).getOrElse(
+  def lastDate: Date = DataBase.nextCycle(id).map(_.id).getOrElse(
     new Date(new java.util.Date().getTime)
   )
 

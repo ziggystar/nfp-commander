@@ -19,10 +19,9 @@ package nfp.view
 
 import collection.mutable.Set
 import swing._
-import event.{Event, TableRowsSelected}
+import event.TableRowsSelected
 import org.squeryl.PrimitiveTypeMode._
 import swing.TabbedPane.Page
-import org.joda.time.DateTime
 import nfp.model._
 
 /**
@@ -79,34 +78,5 @@ object Main extends Reactor {
     tabbedPane.pages += new Page("Zyklen", cyclesPage)
     frame.contents = tabbedPane
     frame.open()
-  }
-}
-
-class ChartPage(_cycle: Cycle) extends MigPanel {
-
-  import nfp.DateConversion._
-
-  private val cycleTracker = new CycleTracker(_cycle)
-
-  val dayEditor = new DayEditorPanel
-  val chart = new NFPChart(endDate = cycleTracker.get.lastDate, beginDate = cycleTracker.get.id)
-
-  this.listenTo(cycleTracker)
-  this.reactions += {
-    case cycleTracker.EntityChangedEvent(c) => {
-      updatePlotRanges()
-    }
-  }
-  this.add(dayEditor)
-  this.add(chart, "wrap")
-  this.add(cycleTracker.createSkipPrevButton("Letzter Zyklus"))
-  this.add(cycleTracker.createSkipNextButton("Nächster Zyklus"))
-
-  private def updatePlotRanges() {
-    chart.setRange(cycleTracker.get.id, cycleTracker.get.lastDate)
-  }
-
-  def setNewCycle(newCycle: Cycle) {
-    cycleTracker.set(newCycle)
   }
 }

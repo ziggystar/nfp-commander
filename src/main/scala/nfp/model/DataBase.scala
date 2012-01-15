@@ -76,7 +76,7 @@ object DataBase extends Schema {
   }
 
   def getFirstDay: Option[Day] = inTransaction {
-    from(days)(d => select(d)).headOption
+    from(days)(d => select(d) orderBy(d.id asc)).headOption
   }
 
   def getCycles: List[Cycle] = inTransaction{
@@ -95,12 +95,21 @@ object DataBase extends Schema {
     cycles.drop(cycIndex).headOption
   }
 
-  def firstCycle: Option[Cycle] = Some(Cycle(getFirstDay.map(_.id).getOrElse(new DateTime), "unnamed first cycle".getBytes))
+  def defaultCycle: Cycle = {
+    Cycle(getFirstDay.map(_.id).getOrElse(new DateTime), "unnamed first cycle".getBytes)
+  }
+
+  def firstCycle: Option[Cycle] = Some(defaultCycle)
   def lastCycle: Option[Cycle] = inTransaction{from(cycles)(c => select(c) orderBy(c.id desc)).headOption}
   /** @return The next cycle with id greater (not equal) than given date. */
   def nextCycle(date: Date): Option[Cycle] = inTransaction{from(cycles)(c => where(c.id gt date) select(c) orderBy(c.id asc)).headOption}
   /** @return The next cycle with id less (not equal) than given date. */
-  def prevCycle(date: Date): Option[Cycle] = inTransaction{from(cycles)(c => where(c.id lt date) select(c) orderBy(c.id desc)).headOption}
+  def prevCycle(date: Date): Option[Cycle] = inTransaction{
+    from(cycles)(c => where(c.id lt date) select(c) orderBy(c.id desc)).headOption match {
+      case r@Some(c) => r
+      case None => if(getFirstDay.exists(_.id != date)) Some(defaultCycle) else None
+    }
+  }
 
   def currentCycle: Cycle = getCycleWithIndex(getCurrentCycleIndex).getOrElse(firstCycle.get /*always defined*/)
 
