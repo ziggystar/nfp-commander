@@ -19,8 +19,9 @@ libraryDependencies ++= "joda-time" % "joda-time" % "2.0" :: "org.joda" % "joda-
 
 libraryDependencies += "com.h2database" % "h2" % "1.3.160"
 
-unmanagedJars in Compile <++= baseDirectory map { base =>
-	val libs = base / "lib"
-	val dirs = (libs / "squeryl")
-	(dirs ** "*.jar").classpath
-}
+//squeryl and h2 db
+libraryDependencies  ++=  Seq(
+  "org.squeryl" %% "squeryl" % "0.9.5-RC1",
+  "com.h2database" % "h2" % "1.2.127"
+)
+
