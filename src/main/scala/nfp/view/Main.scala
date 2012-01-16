@@ -69,8 +69,8 @@ object Main extends Reactor {
     val dayTablePage = new MigPanel
     val cyclesPage = new CyclesPage
 
-    dayTablePage.add(dayEditor)
-    dayTablePage.add(new ScrollPane(dayTable), "growy, push")
+    dayTablePage.add(dayEditor, "aligny top")
+    dayTablePage.add(new ScrollPane(dayTable), "growy, growx, push")
 
     val tabbedPane = new TabbedPane
     tabbedPane.pages += new Page("Kurve", chartPage)

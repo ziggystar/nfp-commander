@@ -19,11 +19,11 @@ package nfp.view
 
 import java.util.Date
 import swing._
-import com.toedter.calendar.JCalendar
-import event.{MousePressed, ButtonClicked}
+import event.MousePressed
 import nfp.DateConversion._
 import nfp.model.{Cycle, DataBase}
 import org.squeryl.PrimitiveTypeMode._
+import com.toedter.calendar.JDateChooser
 
 /**
  * This GUI widget lets you create/delete and modify cycles.
@@ -42,12 +42,13 @@ class CyclesPage extends MigPanel {
     def getColumnCount: Int = 2
   }
 
-  private val dateChooser = new JCalendar(new Date)
-  private val commentField = new TextArea(7,80)
+  private val dateChooser = new JDateChooser(new Date)
+  private val commentField = new TextField(40)
   val commentScrollPane: ScrollPane = new ScrollPane(commentField)
 
-  val table = new Table
+  val table: Table = new Table
   table.model = CyclesTM
+  table.peer.getColumnModel.getColumn(0).setPreferredWidth(100)
 
   def tablePopMenu(cycle: Cycle) = new PopupMenu {
     contents += new MenuItem(Action("löschen")(DataBase.removeCycle(cycle.id)))
@@ -62,15 +63,15 @@ class CyclesPage extends MigPanel {
     }
   }
 
-  val ButtonCreate = new Button("Zyklus Erstellen")
+  val ButtonCreate = new Button("Neuer Zyklus")
 
   commentScrollPane.horizontalScrollBarPolicy = ScrollPane.BarPolicy.Never
 
-  this.add(new ScrollPane(table), "span 2,growx,wrap")
   this.add(Component.wrap(dateChooser))
-  this.add(commentScrollPane, "wrap")
+  this.add(commentScrollPane, "growx, push")
+  this.add(ButtonCreate, "wrap")
+  this.add(new ScrollPane(table), "span 3,growx")
 
-  this.add(ButtonCreate)
 
 
   this.listenTo(ButtonCreate)

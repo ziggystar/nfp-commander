@@ -33,10 +33,10 @@ class ChartPage(_cycle: Cycle) extends MigPanel {
       updatePlotRanges()
     }
   }
-  this.add(dayEditor)
-  this.add(chart, "wrap")
-  this.add(cycleTracker.createSkipPrevButton("Letzter Zyklus"))
-  this.add(cycleTracker.createSkipNextButton("Nächster Zyklus"))
+  this.add(dayEditor, "aligny top")
+  this.add(chart, "spany 2, wrap")
+  this.add(cycleTracker.createSkipPrevButton("Letzter Zyklus"),"split 2")
+  this.add(cycleTracker.createSkipNextButton("Nächster Zyklus"), "wrap")
 
   private def updatePlotRanges() {
     chart.setRange(cycleTracker.get.id, cycleTracker.get.lastDate)
