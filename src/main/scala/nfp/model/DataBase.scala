@@ -34,7 +34,7 @@ import org.squeryl._
 object DataBase extends Schema {
 
   Class.forName("org.h2.Driver")
-  val dbUrl = "jdbc:h2:~/.nfp-commander/data"
+  val dbUrl = "jdbc:h2:~/.nfp-commander/data;DB_CLOSE_DELAY=10"
 
 //
 //  initDB("jdbc:h2:~/.nfp-commander/data")
