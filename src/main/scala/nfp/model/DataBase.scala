@@ -92,7 +92,7 @@ object DataBase extends Schema {
   }
 
   def getCycleWithIndex(cycIndex: Int): Option[Cycle] = inTransaction{
-    cycles.drop(cycIndex).headOption
+    from(cycles)(c => select(c) orderBy(c.id asc)).drop(cycIndex).headOption
   }
 
   def defaultCycle: Cycle = {

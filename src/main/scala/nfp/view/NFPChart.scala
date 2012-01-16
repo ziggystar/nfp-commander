@@ -37,7 +37,6 @@ package nfp.view
 import java.awt.geom.Ellipse2D
 import org.squeryl.PrimitiveTypeMode._
 import org.jfree.chart.plot.XYPlot
-import org.jfree.chart.axis.{DateAxis, NumberAxis}
 import org.joda.time.DateTime
 import swing.Component
 import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
@@ -45,6 +44,7 @@ import nfp.DateConversion._
 import java.sql.Date
 import nfp.model.{TableModifiedEvent, Day, DataBase}
 import org.jfree.chart.{ChartMouseEvent, ChartMouseListener, ChartPanel, JFreeChart}
+import org.jfree.chart.axis.{DateTickUnit, DateTickUnitType, DateAxis, NumberAxis}
 
 /**
   * GUI component to display a NFP chart. It provides a view into the temperature series provided by the days table.
@@ -66,9 +66,12 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
           select(d)
       ).foreach{d => timeSeries.add(new DaySeriesItem(d))}
     }
+    if(timeSeries.getItemCount <= 1){
+      dateAxis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY,1))
+    } else {
+      dateAxis.setAutoTickUnitSelection(true)
+    }
   }
-
-  updateCache()
 
   val numberAxis: NumberAxis = new NumberAxis("Temperatur/°C")
   numberAxis.setRange(35d, 38d)
@@ -90,6 +93,7 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
   chart.removeLegend()
   val chartPanel = new ChartPanel(chart)
   chartPanel.setFillZoomRectangle(false)
+  chartPanel.setRangeZoomable(false)
   chartPanel.setPopupMenu(null)
 
   //add listener for selecting points on the chart
@@ -108,6 +112,7 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
 
   this.add(Component.wrap(chartPanel))
 
+  updateCache()
 
   def setRange(begin: DateTime, end: DateTime) {
     beginDate = begin
