@@ -39,12 +39,12 @@ import org.squeryl.PrimitiveTypeMode._
 import org.jfree.chart.plot.XYPlot
 import org.joda.time.DateTime
 import swing.Component
-import org.jfree.data.time.{TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
 import nfp.DateConversion._
 import java.sql.Date
 import nfp.model.{TableModifiedEvent, Day, DataBase}
 import org.jfree.chart.{ChartMouseEvent, ChartMouseListener, ChartPanel, JFreeChart}
 import org.jfree.chart.axis.{DateTickUnit, DateTickUnitType, DateAxis, NumberAxis}
+import org.jfree.data.time.{DateRange, TimeSeriesDataItem, TimeSeriesCollection, TimeSeries, Day => JFDay}
 
 /**
   * GUI component to display a NFP chart. It provides a view into the temperature series provided by the days table.
@@ -66,11 +66,14 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
           select(d)
       ).foreach{d => timeSeries.add(new DaySeriesItem(d))}
     }
+
     if(timeSeries.getItemCount <= 1){
       dateAxis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY,1))
     } else {
       dateAxis.setAutoTickUnitSelection(true)
     }
+
+    dateAxis.setRange(new DateRange(beginDate: Date,endDate: Date),true,true)
   }
 
   val numberAxis: NumberAxis = new NumberAxis("Temperatur/°C")
