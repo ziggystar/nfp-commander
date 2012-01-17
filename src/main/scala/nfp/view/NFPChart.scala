@@ -67,12 +67,6 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
       ).foreach{d => timeSeries.add(new DaySeriesItem(d))}
     }
 
-    if(timeSeries.getItemCount <= 1){
-      dateAxis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY,1))
-    } else {
-      dateAxis.setAutoTickUnitSelection(true)
-    }
-
     dateAxis.setRange(new DateRange(beginDate.minusDays(1): Date,endDate.plusDays(1): Date),true,true)
   }
 
