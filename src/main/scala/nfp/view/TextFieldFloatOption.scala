@@ -21,6 +21,7 @@ import swing._
 import java.text.NumberFormat
 import javax.swing.text.NumberFormatter
 import java.util.Locale
+import scala.util.control.Exception._
 
 /**
   * A text field to enter a number. This should be replaced/removed.
@@ -43,10 +44,10 @@ class TextFieldFloatOption extends FormattedTextField(NumberFormat.getNumberInst
     text = v.map(v => "%.2f" format v).getOrElse("")
   }
 
-  def getValue: TextFieldFloatOption#TData = try {
-    Some(text.replace(',', '.').toFloat) filter (t => t > 32f && t < 44f)
-  } catch {
-    case _ => None
+  def getValue: TextFieldFloatOption#TData = text.replace('.', ',') match {
+    case "-" => None
+    case "" => None
+    case t => allCatch.opt(t.toFloat)
   }
 }
 

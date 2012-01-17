@@ -119,6 +119,7 @@ class DayEditorPanel extends MigPanel {
 
   def extractOComboBox(cb: ComboBox[String]): Option[String] = cb.item match {
     case "-" => None
+    case "" => None
     case x => Some(x)
   }
 
