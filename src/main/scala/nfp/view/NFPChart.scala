@@ -62,7 +62,7 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
     timeSeries.clear()
     transaction {
       from(DataBase.days)(d =>
-        where((d.id gt (beginDate: Date)) and (d.id lt (endDate: Date)) and (d.temperature isNotNull))
+        where((d.id gte (beginDate: Date)) and (d.id lte (endDate: Date)) and (d.temperature isNotNull))
           select(d)
       ).foreach{d => timeSeries.add(new DaySeriesItem(d))}
     }
@@ -73,7 +73,7 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
       dateAxis.setAutoTickUnitSelection(true)
     }
 
-    dateAxis.setRange(new DateRange(beginDate: Date,endDate: Date),true,true)
+    dateAxis.setRange(new DateRange(beginDate.minusDays(1): Date,endDate.plusDays(1): Date),true,true)
   }
 
   val numberAxis: NumberAxis = new NumberAxis("Temperatur/°C")
