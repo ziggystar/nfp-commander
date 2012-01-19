@@ -39,6 +39,7 @@ class XYCategoryRenderer(val constantValue: Double) extends XYShapeRenderer {
     val resource: URL = this.getClass.getResource(file)
     ImageIO.read(resource)
   }
+
   /**
    * Overriden because of NPE for empty Datasets in JFC.
    *
@@ -115,6 +116,9 @@ class XYCategoryRenderer(val constantValue: Double) extends XYShapeRenderer {
     }
     val icon = icons(iconNumber)
 
+    //TODO cache this in a member
+    val iconWidth = 20
+
     val transX: Double = domainAxis.valueToJava2D(x, dataArea, plot.getDomainAxisEdge)
     val transY: Double = rangeAxis.valueToJava2D(constantValue, dataArea, plot.getRangeAxisEdge)
     val orientation: PlotOrientation = plot.getOrientation
@@ -141,8 +145,8 @@ class XYCategoryRenderer(val constantValue: Double) extends XYShapeRenderer {
       }
       hotspot = shape
       if (shape.intersects(dataArea)) {
-        g2.setPaint(new TexturePaint(icon,new Rectangle(0,0,50,50)))
-        g2.fill(shape)
+        g2.drawImage(icon,transX.toInt - iconWidth/2,transY.toInt - iconWidth/2,transX.toInt+iconWidth/2,transY.toInt+iconWidth/2,0,0,50,50,null)
+        //g2.fill(shape)
 //        if (this.drawOutlines) {
 //          if (getUseOutlinePaint) {
 //            g2.setPaint(getItemOutlinePaint(series, item))
