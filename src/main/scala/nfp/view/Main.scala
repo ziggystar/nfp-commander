@@ -23,6 +23,9 @@ import event.TableRowsSelected
 import org.squeryl.PrimitiveTypeMode._
 import swing.TabbedPane.Page
 import nfp.model._
+import collection.immutable.Map
+import java.awt.image.BufferedImage
+import javax.swing.ImageIcon
 
 /**
  * The main executable.
@@ -76,6 +79,24 @@ object Main extends Reactor {
     tabbedPane.pages += new Page("Kurve", chartPage)
     tabbedPane.pages += new Page("Tage", dayTablePage)
     tabbedPane.pages += new Page("Zyklen", cyclesPage)
+    tabbedPane.pages += new Page("Optionen", new Label("not yet"))
+
+    tabbedPane.tabPlacement(Alignment.Left)
+
+    val tabIcons: Map[Int, ImageIcon] = Seq(
+      0 -> ("tab-curve.png", "Kurve"),
+      1 -> ("tab-table.png", "Tabelle"),
+      2 -> ("tab-cycles.png", "Zyklen"),
+      3 -> ("tab-options.png", "Optionen")
+    )
+      .map{case (idx,(file,desc)) => idx -> new javax.swing.ImageIcon(this.getClass.getResource(file),desc)}.toMap //turn into an URL
+
+    tabIcons.foreach{case (idx,icon) =>
+      tabbedPane.peer.setTitleAt(idx,null)
+      tabbedPane.peer.setToolTipTextAt(idx,icon.getDescription)
+      tabbedPane.peer.setIconAt(idx,icon)
+    }
+
     frame.contents = tabbedPane
     frame.open()
   }

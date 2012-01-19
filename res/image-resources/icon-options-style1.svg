@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="80"
+   height="80"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.1 r9760"
+   sodipodi:docname="icon-table-style1.svg"
+   inkscape:export-filename="/home/thomas/workspace/nfp-commander/res/image-resources/icon-table-style1.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="DotS"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="DotS"
+       style="overflow:visible">
+      <path
+         id="path4006"
+         d="M -2.5,-1.0 C -2.5,1.7600000 -4.7400000,4.0 -7.5,4.0 C -10.260000,4.0 -12.5,1.7600000 -12.5,-1.0 C -12.5,-3.7600000 -10.260000,-6.0 -7.5,-6.0 C -4.7400000,-6.0 -2.5,-3.7600000 -2.5,-1.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;marker-end:none"
+         transform="scale(0.2) translate(7.4, 1)" />
+    </marker>
+    <marker
+       inkscape:stockid="DotM"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="DotM"
+       style="overflow:visible">
+      <path
+         id="path4003"
+         d="M -2.5,-1.0 C -2.5,1.7600000 -4.7400000,4.0 -7.5,4.0 C -10.260000,4.0 -12.5,1.7600000 -12.5,-1.0 C -12.5,-3.7600000 -10.260000,-6.0 -7.5,-6.0 C -4.7400000,-6.0 -2.5,-3.7600000 -2.5,-1.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;marker-end:none"
+         transform="scale(0.4) translate(7.4, 1)" />
+    </marker>
+    <filter
+       id="filter7168"
+       inkscape:label="Evanescent"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur7170"
+         result="result6"
+         stdDeviation="3"
+         in="SourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix7172"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7"
+         in="SourceGraphic" />
+      <feComposite
+         id="feComposite7174"
+         in2="result7"
+         operator="in"
+         in="result6" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="8"
+     inkscape:cx="27.726148"
+     inkscape:cy="18.476356"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1123"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+        <dc:description>To create icon
+
+1.  cut out shape from rectangle
+2. apply Filters-&gt;Blur-&gt;Evanescense</dc:description>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-972.36218)">
+    <path
+       style="fill:#ad7fa8;fill-opacity:1;stroke:none;filter:url(#filter7168)"
+       d="M 8.78125 5.34375 C 6.8760929 5.34375 5.34375 6.8760929 5.34375 8.78125 L 5.34375 71.21875 C 5.34375 73.123907 6.8760929 74.65625 8.78125 74.65625 L 71.21875 74.65625 C 73.123907 74.65625 74.65625 73.123907 74.65625 71.21875 L 74.65625 8.78125 C 74.65625 6.8760929 73.123907 5.34375 71.21875 5.34375 L 8.78125 5.34375 z M 51.1875 16.65625 C 52.391617 16.66041 53.554875 16.984187 54.53125 17.625 C 55.063526 17.96355 53.841913 19.12809 52.46875 20.40625 C 50.440999 22.01153 48.919812 24.55245 49.625 27.21875 C 49.821088 28.28668 50.32675 29.1813 51.03125 29.9375 C 51.735142 30.6944 52.636338 31.25935 53.6875 31.53125 C 56.296466 32.42555 58.909961 31.12645 60.65625 29.21875 C 62.029412 27.94065 63.294155 26.78855 63.59375 27.34375 C 65.870917 31.42278 62.561872 37.8424 56.75 39.625 C 54.672829 40.3959 52.331013 40.25165 50.25 40.03125 C 42.411407 47.30505 34.585217 54.6322 26.71875 61.875 C 24.005964 64.1717 19.804781 63.637 17.40625 61.25 C 15.196973 58.6868 14.98385 54.44775 17.46875 51.90625 C 25.256055 44.57825 33.121368 37.32925 40.9375 30.03125 C 40.866676 27.93975 40.89488 25.5791 41.8125 23.5625 C 43.457982 19.310443 47.575149 16.64377 51.1875 16.65625 z "
+       transform="translate(0,972.36218)"
+       id="rect2985" />
+  </g>
+</svg>
