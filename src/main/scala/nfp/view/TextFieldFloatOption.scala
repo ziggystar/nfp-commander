@@ -44,10 +44,10 @@ class TextFieldFloatOption extends FormattedTextField(NumberFormat.getNumberInst
     text = v.map(v => "%.2f" format v).getOrElse("")
   }
 
-  def getValue: TextFieldFloatOption#TData = text.replace('.', ',') match {
+  def getValue: TextFieldFloatOption#TData = text match {
     case "-" => None
     case "" => None
-    case t => allCatch.opt(t.toFloat)
+    case t => allCatch.opt(numberFormat.parse(t).floatValue())
   }
 }
 
