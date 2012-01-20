@@ -17,14 +17,11 @@
 
 package nfp.view
 
-import collection.mutable.Set
 import swing._
-import event.TableRowsSelected
 import org.squeryl.PrimitiveTypeMode._
 import swing.TabbedPane.Page
 import nfp.model._
 import collection.immutable.Map
-import java.awt.image.BufferedImage
 import javax.swing.ImageIcon
 
 /**
@@ -57,14 +54,7 @@ object Main extends Reactor {
 
     val dayTableModel = new NFPTableModel
     val dayTable = new Table
-    val dayEditor = new DayEditorPanel
 
-    dayTable.reactions += {
-      case e: TableRowsSelected =>
-        val selection: Set[Int] = dayTable.selection.cells.map(_._1)
-        if (selection.size == 1)
-          dayEditor.setContent(dayTableModel.getRowAt(selection.min))
-    }
     dayTable.listenTo(dayTable.selection)
     dayTable.model = dayTableModel
 
@@ -72,8 +62,7 @@ object Main extends Reactor {
     val dayTablePage = new MigPanel
     val cyclesPage = new CyclesPage
 
-    dayTablePage.add(dayEditor, "aligny top")
-    dayTablePage.add(new ScrollPane(dayTable), "growy, growx, push")
+    dayTablePage.add(new ScrollPane(dayTable), "growx,growy,push")
 
     val tabbedPane = new TabbedPane
     tabbedPane.pages += new Page("Kurve", chartPage)

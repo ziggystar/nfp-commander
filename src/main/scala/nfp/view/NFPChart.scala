@@ -42,8 +42,7 @@ import java.sql.Date
 import nfp.model.{TableModifiedEvent, Day, DataBase}
 import org.jfree.chart.{ChartMouseEvent, ChartMouseListener, ChartPanel, JFreeChart}
 import java.awt.geom.Ellipse2D
-import org.jfree.data.category.DefaultCategoryDataset
-import org.jfree.chart.plot.{CategoryPlot, XYPlot}
+import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.axis._
 import collection.immutable.Map
 import java.lang.String

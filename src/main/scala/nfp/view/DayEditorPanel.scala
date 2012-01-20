@@ -18,9 +18,6 @@
 package nfp.view
 
 import swing._
-import event.Event
-import java.util.Date
-import javax.swing.BorderFactory
 import com.toedter.calendar.JDateChooser
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import nfp.model.{DataBase, Day}
@@ -32,60 +29,67 @@ import nfp.model.{DataBase, Day}
   * @author Thomas Geier
   * Date: 25.06.11
   */
-class DayEditorPanel extends MigPanel {
+class DayEditorPanel(initialDay: Day) extends MigPanel {
 
   import nfp.DateConversion._
 
-  case class StringOption(label: String, values: Seq[String], extractor: Day => Option[String], modifier: Option[String] => Day => Day, default: Option[String] = None)
+  case class StringOption(label: String,
+                          values: Seq[String],
+                          extractor: Day => Option[String],
+                          modifier: Option[String] => Day => Day,
+                          default: Option[String] = None)
 
   val stringOptions = Seq.empty[StringOption] :+
     StringOption(
       "Schleim",
       Seq("kein", "t", "f", "S", "(S)", "S+", "(S+)"),
       _.schleim,
-      v => _.copy(schleim = v)) :+
+      v => _.copy(schleim = v),
+      initialDay.schleim) :+
     StringOption(
       "Muttermund Position",
       Seq("hoch", "mittel", "tief"),
       _.mumuPosition,
-      v => _.copy(mumuPosition = v)) :+
+      v => _.copy(mumuPosition = v),
+      initialDay.mumuPosition) :+
     StringOption(
       "Muttermund Öffnung",
       Seq("offen", "mittel", "geschlossen"),
       _.mumuOpen,
-      v => _.copy(mumuOpen = v)
+      v => _.copy(mumuOpen = v),
+      initialDay.mumuOpen
     ) :+
     StringOption(
       "Muttermund Härte",
       Seq("weich", "solala", "hart"),
       _.mumuFest,
-      v => _.copy(mumuFest = v)
+      v => _.copy(mumuFest = v),
+      initialDay.mumuFest
     ) :+
     StringOption(
       "Blutung",
       Seq("keine", "leicht", "mittel", "stark", "Schmier"),
       _.blutung,
       v => _.copy(blutung = v),
-      Some("keine")
+      initialDay.blutung
     ) :+
     StringOption(
       "Sex",
       Seq("keiner", "verhütet", "unverhütet"),
       _.sex,
       v => _.copy(sex = v),
-      Some("keiner")
+      initialDay.sex
     )
 
-  this.peer.setBorder(BorderFactory.createTitledBorder("Eintragen/Ändern"))
-
-  private val dateChooser: JDateChooser = new JDateChooser(new Date)
+  private val dateChooser: JDateChooser = new JDateChooser(initialDay.id)
   this.add(new Label("Tag"))
   this.add(Component.wrap(dateChooser), "w 150, wrap")
 
   val tfTemp: TextFieldFloatOption = new TextFieldFloatOption
+  tfTemp.setValue(initialDay.temperature)
   this.add(new Label("Temperatur"))
   private val cbKlammer: CheckBox = new CheckBox
-  cbKlammer.selected = true
+  cbKlammer.selected = !initialDay.ausklammern
   this.add(tfTemp, "split 2, grow")
   this.add(cbKlammer, "wrap")
 
@@ -99,18 +103,9 @@ class DayEditorPanel extends MigPanel {
       this.add(cb, "w 150, wrap")
   }
 
-  val buttonSave: Button = new Button("Speichern")
-  this.add(buttonSave, "span 2, gap push")
-
-  listenTo(buttonSave)
-  reactions += {
-    case swing.event.ActionEvent(c) if (c == buttonSave) => getDay.foreach(DataBase.createOrUpdateDay)
-  }
-
   val dateChooserListener = new PropertyChangeListener {
     def propertyChange(p1: PropertyChangeEvent) {
       if(p1.getSource == dateChooser){
-        publish(DaySelectedEvent(dateChooser.getDate))
         DataBase.getDayAtDate(dateChooser.getDate).foreach(setContent(_))
       }
     }
@@ -148,6 +143,4 @@ class DayEditorPanel extends MigPanel {
     cbKlammer.selected = !day.ausklammern
   }
 }
-
-case class DaySelectedEvent(date: Date) extends Event
 
