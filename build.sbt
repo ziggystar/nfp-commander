@@ -25,3 +25,17 @@ libraryDependencies  ++=  Seq(
   "com.h2database" % "h2" % "1.2.127"
 )
 
+//proguard settings
+seq(ProguardPlugin.proguardSettings :_*)
+
+proguardOptions ++= Seq(
+  keepMain("nfp.view.Main"),
+  "-keep class scala.ScalaObject { *; }",
+  "-keep class net.sf.cglib.proxy.MethodProxy { *; }",
+  "-keep class net.sf.cglib.core.ReflectUtils { *; }",
+  "-keep class net.sf.cglib.proxy.MethodInterceptor{ *; }",
+  "-keep class net.sf.cglib.reflect.FastClass{ *; }",
+  "-keep class org.jfree.chart.resources.JFreeChartResources { *; }",
+  "-keep class org.jfree.resources.JCommonResources { *; }"
+)
+
