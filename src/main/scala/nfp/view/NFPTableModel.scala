@@ -22,6 +22,7 @@ import org.squeryl.PrimitiveTypeMode._
 import org.joda.time.LocalDate
 import nfp.model.{Day, DataBase}
 import nfp.DateConversion._
+import nfp.view.I18n._
 
 /** Table model for use with Swing GUI tables.
   *
@@ -39,8 +40,8 @@ class NFPTableModel extends DBTableModel(
   def prettifyDate(d: LocalDate): String = {
     import org.joda.time.{Days => jtDays}
     jtDays.daysBetween(new LocalDate, d).getDays match {
-      case 0 => "heute"
-      case 1 => "gestern"
+      case 0 => 'today
+      case 1 => 'yesterday
       case x => d.toString
     }
   }

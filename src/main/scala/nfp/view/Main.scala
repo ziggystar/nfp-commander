@@ -23,6 +23,7 @@ import swing.TabbedPane.Page
 import nfp.model._
 import collection.immutable.Map
 import javax.swing.ImageIcon
+import nfp.view.I18n._
 
 /**
  * The main executable.
@@ -50,7 +51,7 @@ object Main extends Reactor {
     }
 
     val frame = new MainFrame
-    frame.title = "nfp commander"
+    frame.title = 'title
 
     val dayTableModel = new NFPTableModel
     val dayTable = new Table
@@ -65,18 +66,18 @@ object Main extends Reactor {
     dayTablePage.add(new ScrollPane(dayTable), "growx,growy,push")
 
     val tabbedPane = new TabbedPane
-    tabbedPane.pages += new Page("Kurve", chartPage)
-    tabbedPane.pages += new Page("Tage", dayTablePage)
-    tabbedPane.pages += new Page("Zyklen", cyclesPage)
-    tabbedPane.pages += new Page("Optionen", new Label("not yet"))
+    tabbedPane.pages += new Page('chart, chartPage)
+    tabbedPane.pages += new Page('table, dayTablePage)
+    tabbedPane.pages += new Page('cycles, cyclesPage)
+    tabbedPane.pages += new Page('options, new Label("not yet"))
 
     tabbedPane.tabPlacement(Alignment.Left)
 
     val tabIcons: Map[Int, ImageIcon] = Seq(
-      0 -> ("tab-curve.png", "Kurve"),
-      1 -> ("tab-table.png", "Tabelle"),
-      2 -> ("tab-cycles.png", "Zyklen"),
-      3 -> ("tab-options.png", "Optionen")
+      0 -> ("tab-curve.png", 'chart),
+      1 -> ("tab-table.png", 'table),
+      2 -> ("tab-cycles.png", 'cycles),
+      3 -> ("tab-options.png", 'options)
     )
       .map{case (idx,(file,desc)) => idx -> new javax.swing.ImageIcon(this.getClass.getResource(file),desc)}.toMap //turn into an URL
 

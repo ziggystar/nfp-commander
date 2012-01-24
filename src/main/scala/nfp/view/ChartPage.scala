@@ -22,6 +22,7 @@ import swing._
 import javax.swing.JOptionPane
 import org.joda.time.DateMidnight
 import nfp.model.{DataBase, Day, Cycle}
+import nfp.view.I18n._
 
 class ChartPage(_cycle: Cycle) extends MigPanel {
 
@@ -36,14 +37,14 @@ class ChartPage(_cycle: Cycle) extends MigPanel {
     }
   }
   this.add(chart, "ax center, grow,push, wrap")
-  this.add(cycleTracker.createSkipPrevButton("Letzter Zyklus"),"split 3")
-  this.add(cycleTracker.createSkipNextButton("Nächster Zyklus"))
+  this.add(cycleTracker.createSkipPrevButton('next_cycle),"split 3")
+  this.add(cycleTracker.createSkipNextButton('prev_cycle))
   this.add(createAddDayButton)
 
   def createOrModifyDayDialog(parent: java.awt.Component, day: Day): Option[Day] = {
     val editor: DayEditorPanel = new DayEditorPanel(day)
     val pane = new JOptionPane(editor.peer, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION)
-    val  dialog = pane.createDialog(parent, "Tag erstellen/ändern")
+    val  dialog = pane.createDialog(parent,'new_day)
     dialog.setVisible(true)
     val selectedValue = pane.getValue
     selectedValue.asInstanceOf[Int] match {
@@ -58,7 +59,7 @@ class ChartPage(_cycle: Cycle) extends MigPanel {
       blutung = Some("keine"),
       sex = Some("keiner")
     )
-    new Button(Action("Neuer Tag")(
+    new Button(Action('new_day)(
       createOrModifyDayDialog(this.peer, defaultToDay).foreach(DataBase.createOrUpdateDay _))
     )
   }

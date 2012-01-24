@@ -47,6 +47,7 @@ import org.jfree.chart.axis._
 import collection.immutable.Map
 import java.lang.String
 import org.jfree.data.time.{TimeSeriesCollection, DateRange, TimeSeriesDataItem, TimeSeries, Day => JFDay}
+import nfp.view.I18n._
 
 /**
   * GUI component to display a NFP chart. It provides a view into the temperature series provided by the days table.
@@ -87,8 +88,8 @@ class NFPChart(private var beginDate: DateTime, private var endDate: DateTime) e
     dateAxis.setRange(new DateRange(beginDate.minusDays(1): Date,endDate.plusDays(1): Date),true,true)
   }
 
-  val numberAxis: NumberAxis = new NumberAxis("Temperatur/°C")
-  val dateAxis: DateAxis = new DateAxis("Tag")
+  val numberAxis: NumberAxis = new NumberAxis('temperature_axis)
+  val dateAxis: DateAxis = new DateAxis('time_axis)
   val renderer = new DiscontinuedLineRenderer
   renderer.setSeriesShape(0, new Ellipse2D.Double(-3, -3, 6, 6))
   renderer.renderLinePredicate = timeData => timeData > 0 && (

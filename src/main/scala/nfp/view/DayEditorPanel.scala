@@ -21,6 +21,7 @@ import swing._
 import com.toedter.calendar.JDateChooser
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import nfp.model.{DataBase, Day}
+import nfp.view.I18n._
 
 /**
   * GUI element to display and modify a Day object.
@@ -74,20 +75,20 @@ class DayEditorPanel(initialDay: Day) extends MigPanel {
       initialDay.blutung
     ) :+
     StringOption(
-      "Sex",
-      Seq("keiner", "verhütet", "unverhütet"),
+      'sex,
+      Seq('none, 'contraception, 'no_contraception),
       _.sex,
       v => _.copy(sex = v),
       initialDay.sex
     )
 
   private val dateChooser: JDateChooser = new JDateChooser(initialDay.id)
-  this.add(new Label("Tag"))
+  this.add(new Label('day))
   this.add(Component.wrap(dateChooser), "w 150, wrap")
 
   val tfTemp: TextFieldFloatOption = new TextFieldFloatOption
   tfTemp.setValue(initialDay.temperature)
-  this.add(new Label("Temperatur"))
+  this.add(new Label('temperature))
   private val cbKlammer: CheckBox = new CheckBox
   cbKlammer.selected = !initialDay.ausklammern
   this.add(tfTemp, "split 2, grow")
